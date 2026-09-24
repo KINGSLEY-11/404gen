@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>HARMATTAN FARE</title>
+  <style>
+    html, body { margin:0; height:100%; background:#1A1020; overflow:hidden; touch-action:none; font-family: ui-sans-serif, system-ui, sans-serif; }
+    canvas { display:block; width:100%; height:100%; }
+    #load, .screen {
+      position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#1A1020 0%,#4a2a28 55%,#C47A4A 100%); color:#F5E6C8; text-align:center; z-index:5;
+    }
+    #load h1, .screen h2 { font-weight:800; letter-spacing:.18em; font-size:22px; margin:0 0 8px; }
+    .sub { letter-spacing:.28em; font-size:11px; opacity:.7; margin-bottom:28px; }
+    #bar { width:180px; height:3px; background:#0006; }
+    #barf { width:8%; height:100%; background:#F5C400; }
+    #loadmsg { margin-top:10px; font-size:11px; letter-spacing:.12em; opacity:.65; }
+    .screen p { max-width:280px; font-size:14px; line-height:1.45; opacity:.85; }
+    .btn {
+      margin-top:22px; border:0; background:#F5C400; color:#1A1A1A; font-weight:800; letter-spacing:.16em;
+      padding:16px 28px; font-size:14px; border-radius:2px;
+    }
+    #hud { position:absolute; inset:0; pointer-events:none; z-index:3; color:#F5E6C8; }
+    #fare { position:absolute; left:max(16px,env(safe-area-inset-left)); top:max(14px,env(safe-area-inset-top)); }
+    #fare .n { font-size:28px; font-weight:800; letter-spacing:.04em; }
+    #fare .l { font-size:10px; letter-spacing:.2em; opacity:.7; }
+    #clock { position:absolute; right:max(16px,env(safe-area-inset-right)); top:max(14px,env(safe-area-inset-top)); text-align:right; }
+    #clock .n { font-size:22px; font-weight:700; }
+    #hint { position:absolute; left:50%; top:18%; transform:translateX(-50%); font-size:13px; letter-spacing:.08em; text-shadow:0 1px 4px #000; white-space:nowrap; }
+    #toast { position:absolute; left:50%; bottom:38%; transform:translateX(-50%); font-size:15px; font-weight:700; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; }
+    #toast.on { opacity:1; }
+    #touch { position:absolute; inset:0; z-index:4; pointer-events:none; }
+    #stick {
+      pointer-events:auto; position:absolute; left:max(18px,env(safe-area-inset-left)); bottom:max(22px,env(safe-area-inset-bottom));
+      width:118px; height:118px;
+    }
+    #stickbase { width:100%; height:100%; border-radius:50%; background:#0005; border:1px solid #fff3; }
+    #sticknub { position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:#F5C400cc; }
+    #horn {
+      pointer-events:auto; position:absolute; right:max(22px,env(safe-area-inset-right)); bottom:max(36px,env(safe-area-inset-bottom));
+      width:72px; height:72px; border-radius:50%; background:#1B6B3Acc; color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:11px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
+    }
+    .hidden { display:none !important; }
+  </style>
+  <script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="load">
+    <h1>HARMATTAN FARE</h1>
+    <div class="sub">ENUGU · DUSK SHIFT</div>
+    <div id="bar"><div id="barf"></div></div>
+    <div id="loadmsg">warming the engine</div>
+  </div>
+  <div id="hud" class="hidden">
+    <div id="fare"><div class="l">NAIRA</div><div class="n" id="naira">0</div></div>
+    <div id="clock"><div class="l" style="letter-spacing:.2em;font-size:10px;opacity:.7">SHIFT</div><div class="n" id="time">2:00</div></div>
+    <div id="hint">PICK UP THE PASSENGER</div>
+    <div id="toast"></div>
+  </div>
+  <div id="touch" class="hidden">
+    <div id="stick"><div id="stickbase"></div><div id="sticknub"></div></div>
+    <div id="horn">HORN</div>
+  </div>
+  <div class="screen" id="start">
+    <h2>HARMATTAN FARE</h2>
+    <p>Dusk shift on the laterite. Fill the keke, drop them at the light, don't hit the goats.</p>
+    <button class="btn" id="startb">START SHIFT</button>
+  </div>
+  <div class="screen hidden" id="over">
+    <h2 id="overh">SHIFT OVER</h2>
+    <p id="overp"></p>
+    <button class="btn" id="overb">AGAIN</button>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
