@@ -222,54 +222,98 @@ function toast(msg) {
 }
 
 // ---------- input ----------
-const stick = { x: 0, y: 0, active: false };
+const stick = { x: 0, y: 0, active: false, ox: 0, oy: 0, id: null };
 const stickEl = document.getElementById('stick');
 const nub = document.getElementById('sticknub');
+const drivePad = document.getElementById('drivepad');
 const keys = new Set();
 
 function bindStick(el) {
+  const maxR = () => Math.max(56, stickEl.getBoundingClientRect().width * 0.42);
   const setFrom = (cx, cy) => {
-    const r = el.getBoundingClientRect();
-    const dx = cx - (r.left + r.width / 2);
-    const dy = cy - (r.top + r.height / 2);
-    const max = r.width * 0.42;
+    const dx = cx - stick.ox;
+    const dy = cy - stick.oy;
+    const max = maxR();
     const len = Math.hypot(dx, dy) || 1;
     const cl = Math.min(len, max);
-    stick.x = (dx / len) * (cl / max);
-    stick.y = (dy / len) * (cl / max);
+    let x = (dx / len) * (cl / max);
+    let y = (dy / len) * (cl / max);
+    if (Math.hypot(x, y) < 0.14) { x = 0; y = 0; }
+    stick.x = x;
+    stick.y = y;
     nub.style.transform = `translate(${(dx / len) * cl}px, ${(dy / len) * cl}px)`;
   };
   const start = (e) => {
+    const t = e.changedTouches ? e.changedTouches[0] : e;
     stick.active = true;
-    const t = e.touches ? e.touches[0] : e;
+    stick.id = t.pointerId != null ? t.pointerId : 1;
+    stick.ox = t.clientX;
+    stick.oy = t.clientY;
+    const r = stickEl.getBoundingClientRect();
+    stickEl.style.left = (t.clientX - r.width / 2) + 'px';
+    stickEl.style.top = (t.clientY - r.height / 2) + 'px';
+    stickEl.style.bottom = 'auto';
     setFrom(t.clientX, t.clientY);
   };
   const move = (e) => {
     if (!stick.active) return;
-    const t = e.touches ? e.touches[0] : e;
+    const t = e.changedTouches ? e.changedTouches[0] : e;
+    if (t.pointerId != null && stick.id != null && t.pointerId !== stick.id) return;
     setFrom(t.clientX, t.clientY);
   };
-  const end = () => {
+  const end = (e) => {
+    const t = e && e.changedTouches ? e.changedTouches[0] : e;
+    if (t && t.pointerId != null && stick.id != null && t.pointerId !== stick.id) return;
     stick.active = false;
-    stick.x = 0; stick.y = 0;
+    stick.x = 0; stick.y = 0; stick.id = null;
     nub.style.transform = 'translate(0,0)';
+    stickEl.style.left = '';
+    stickEl.style.top = '';
+    stickEl.style.bottom = '';
   };
   el.addEventListener('pointerdown', start);
   addEventListener('pointermove', move);
   addEventListener('pointerup', end);
+  addEventListener('pointercancel', end);
   el.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }, { passive: false });
   addEventListener('touchmove', (e) => { if (stick.active) { e.preventDefault(); move(e); } }, { passive: false });
   addEventListener('touchend', end);
 }
-bindStick(stickEl);
+bindStick(drivePad || stickEl);
 
 addEventListener('keydown', (e) => keys.add(e.code));
 addEventListener('keyup', (e) => keys.delete(e.code));
 
+let audioCtx;
+function beep() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = 220;
+    g.gain.value = 0.05;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.16);
+  } catch (_) {}
+}
+
 document.getElementById('horn').addEventListener('pointerdown', () => {
   if (!playing) return;
+  beep();
   tryBoard(true);
   toast('HAAA!');
+});
+
+addEventListener('keydown', (e) => {
+  if (!playing) return;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    beep();
+    tryBoard(true);
+    toast('HAAA!');
+  }
 });
 
 function throttleSteer() {
@@ -277,6 +321,8 @@ function throttleSteer() {
   if (stick.active) {
     th = -stick.y;
     st = stick.x;
+    if (th > 0.2) th = 0.2 + (th - 0.2) * 1.15;
+    st = st * Math.min(1, 0.45 + Math.abs(th) * 0.7);
   }
   if (keys.has('KeyW') || keys.has('ArrowUp')) th += 1;
   if (keys.has('KeyS') || keys.has('ArrowDown')) th -= 0.6;
@@ -289,7 +335,7 @@ function tryBoard(forced) {
   if (onboard) {
     const d = destMarker.position;
     const dist = Math.hypot(px - d.x, pz - d.z);
-    if (dist < 3.4 && speed < 3.2) {
+    if (dist < 4.4 && speed < 4.2) {
       naira += 400 + Math.floor(Math.random() * 250);
       document.getElementById('naira').textContent = naira.toLocaleString();
       scene.remove(onboard.obj);
@@ -302,13 +348,13 @@ function tryBoard(forced) {
     }
     return;
   }
-  let best = null, bestD = forced ? 5.2 : 3.2;
+  let best = null, bestD = forced ? 6.4 : 4.2;
   for (const p of passengers) {
     if (p.riding) continue;
     const d = Math.hypot(px - p.x, pz - p.z);
     if (d < bestD) { best = p; bestD = d; }
   }
-  if (!best || speed > 3.5) return;
+  if (!best || speed > 4.4) return;
   best.riding = true;
   scene.remove(best.obj);
   scene.remove(best.glow);
@@ -323,7 +369,7 @@ function tryBoard(forced) {
 function hitGoats() {
   for (const g of goats) {
     const d = Math.hypot(px - g.obj.position.x, pz - g.obj.position.z);
-    if (d < 1.4 && speed > 4) {
+    if (d < 1.15 && speed > 5.2) {
       speed *= 0.35;
       toast('GOAT!');
     }
@@ -341,7 +387,7 @@ function updateCamera() {
     height,
     pz - Math.cos(yaw) * back
   );
-  camPos.lerp(desired, 0.08);
+  camPos.lerp(desired, 0.14);
   camTarget.set(px + Math.sin(yaw) * 4, 1.1, pz + Math.cos(yaw) * 4);
   camera.position.copy(camPos);
   camera.lookAt(camTarget);
@@ -360,7 +406,7 @@ function tick() {
     speed += accel * dt;
     if (Math.abs(th) < 0.05) speed *= Math.pow(0.22, dt);
     speed = THREE.MathUtils.clamp(speed, -3.5, MAX_SPEED);
-    yaw -= st * (1.7 + Math.abs(speed) * 0.12) * dt;
+    yaw -= st * (1.15 + Math.abs(speed) * 0.08) * dt;
     px += Math.sin(yaw) * speed * dt;
     pz += Math.cos(yaw) * speed * dt;
 
