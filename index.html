@@ -32,18 +32,28 @@
     #toast { position:absolute; left:50%; bottom:38%; transform:translateX(-50%); font-size:15px; font-weight:700; text-shadow:0 2px 8px #000; opacity:0; transition:opacity .2s; }
     #toast.on { opacity:1; }
     #touch { position:absolute; inset:0; z-index:4; pointer-events:none; }
-    #stick {
-      pointer-events:auto; position:absolute; left:max(18px,env(safe-area-inset-left)); bottom:max(22px,env(safe-area-inset-bottom));
-      width:118px; height:118px;
+    #drivepad {
+      pointer-events:auto; position:absolute; left:0; top:0; bottom:0; width:62%;
     }
-    #stickbase { width:100%; height:100%; border-radius:50%; background:#0005; border:1px solid #fff3; }
-    #sticknub { position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:#F5C400cc; }
+    #stick {
+      pointer-events:none; position:absolute; left:max(16px,env(safe-area-inset-left));
+      bottom:max(96px, calc(env(safe-area-inset-bottom) + 72px));
+      width:148px; height:148px;
+    }
+    #stickbase { width:100%; height:100%; border-radius:50%; background:#0006; border:1px solid #fff4; }
+    #sticknub { position:absolute; left:50%; top:50%; width:58px; height:58px; margin:-29px 0 0 -29px; border-radius:50%; background:#F5C400dd; box-shadow:0 0 0 6px #f5c40033; }
     #horn {
-      pointer-events:auto; position:absolute; right:max(22px,env(safe-area-inset-right)); bottom:max(36px,env(safe-area-inset-bottom));
-      width:72px; height:72px; border-radius:50%; background:#1B6B3Acc; color:#fff; display:flex; align-items:center; justify-content:center;
-      font-size:11px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
+      pointer-events:auto; position:absolute; right:max(18px,env(safe-area-inset-right));
+      bottom:max(96px, calc(env(safe-area-inset-bottom) + 72px));
+      width:84px; height:84px; border-radius:50%; background:#1B6B3Acc; color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:12px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
     }
     .hidden { display:none !important; }
+    .how { margin-top:10px; font-size:11px; letter-spacing:.06em; opacity:.7; max-width:300px; }
+    @media (min-width: 820px) {
+      #drivepad, #stick { display:none; }
+      #horn { bottom: 36px; }
+    }
   </style>
   <script type="importmap">
   { "imports": { "three": "./vendor/three.module.js" } }
@@ -64,12 +74,14 @@
     <div id="toast"></div>
   </div>
   <div id="touch" class="hidden">
+    <div id="drivepad"></div>
     <div id="stick"><div id="stickbase"></div><div id="sticknub"></div></div>
     <div id="horn">HORN</div>
   </div>
   <div class="screen" id="start">
     <h2>HARMATTAN FARE</h2>
-    <p>Dusk shift on the laterite. Fill the keke, drop them at the light, don't hit the goats.</p>
+    <p>Dusk keke run in Enugu. Hail a passenger. Drop them on the gold ring. Don't hit the goats.</p>
+    <p class="how">Phone: hold left side to drive, HORN on the right.<br>Desktop: WASD or arrows. Space = horn.</p>
     <button class="btn" id="startb">START SHIFT</button>
   </div>
   <div class="screen hidden" id="over">
