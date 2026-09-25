@@ -45,14 +45,22 @@
     #horn {
       pointer-events:auto; position:absolute; right:max(18px,env(safe-area-inset-right));
       bottom:max(96px, calc(env(safe-area-inset-bottom) + 72px));
-      width:84px; height:84px; border-radius:50%; background:#1B6B3Acc; color:#fff; display:flex; align-items:center; justify-content:center;
-      font-size:12px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
+      width:76px; height:76px; border-radius:50%; background:#1B6B3Acc; color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:11px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
     }
+    #brake {
+      pointer-events:auto; position:absolute; right:max(18px,env(safe-area-inset-right));
+      bottom:max(186px, calc(env(safe-area-inset-bottom) + 162px));
+      width:76px; height:76px; border-radius:50%; background:#8B1E1Ecc; color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:11px; letter-spacing:.14em; font-weight:700; border:1px solid #fff3;
+    }
+    #brake.on { background:#c62828ee; }
     .hidden { display:none !important; }
     .how { margin-top:10px; font-size:11px; letter-spacing:.06em; opacity:.7; max-width:300px; }
     @media (min-width: 820px) {
       #drivepad, #stick { display:none; }
       #horn { bottom: 36px; }
+      #brake { bottom: 124px; }
     }
   </style>
   <script type="importmap">
@@ -76,12 +84,13 @@
   <div id="touch" class="hidden">
     <div id="drivepad"></div>
     <div id="stick"><div id="stickbase"></div><div id="sticknub"></div></div>
+    <div id="brake">BRAKE</div>
     <div id="horn">HORN</div>
   </div>
   <div class="screen" id="start">
     <h2>HARMATTAN FARE</h2>
     <p>Dusk keke run in Enugu. Hail a passenger. Drop them on the gold ring. Don't hit the goats.</p>
-    <p class="how">Phone: hold left side to drive, HORN on the right.<br>Desktop: WASD or arrows. Space = horn.</p>
+    <p class="how">Phone: left side to drive. BRAKE and HORN on the right.<br>Desktop: WASD. S or Shift = brake. Space = horn.</p>
     <button class="btn" id="startb">START SHIFT</button>
   </div>
   <div class="screen hidden" id="over">
